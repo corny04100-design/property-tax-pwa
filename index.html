@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2025년 재산세 공동주택 세액계산</title>
+
+<!-- PWA additions -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2c58ff">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+:root{ --bg:#ffffff; --card:#f8f9fa; --text:#000000; --brand:#2c58ff; --sum-bg:#e8f1ff; --input-bg:#fffbe6; --warn:#d92d20; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#000;font-size:18px;line-height:1.65;}
+.wrap{max-width:1100px;margin:36px auto;padding:0 16px}
+.title{font-size:30px;font-weight:800;margin-bottom:4px}
+.subtitle{font-size:15px;color:#2c58ff;margin-bottom:14px}
+.subtitle .danger{color:#d92d20;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr;gap:18px}
+@media (min-width:960px){.grid{grid-template-columns:1.2fr 1fr}}
+.card{background:var(--card);border:1px solid #ddd;border-radius:12px;padding:22px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h2{font-size:24px;margin:0}
+h2 .unit{font-size:12px;font-weight:600;margin-left:6px;vertical-align:middle;color:#333}
+label{display:block;font-size:17px;color:#333;margin-bottom:6px}
+.label-center{text-align:center}
+.nowrap{white-space:nowrap;display:inline-block}
+input[type="text"],input.num{width:100%;background:#fff;border:1px solid #ccc;color:#000;padding:12px 14px;border-radius:10px;outline:none;font-size:17px;text-align:right}
+input.num{background:var(--input-bg)}
+input:focus{border-color:#9db4ff;box-shadow:0 0 0 3px rgba(44,88,255,.15)}
+.center-input{text-align:center !important}
+.block-center{display:block;margin:0 auto}
+.w-105{width:105px !important}
+input::placeholder{color:#9aa0a6}
+.row{display:grid;grid-template-columns:1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.row3.align-end{align-items:end}
+.row3>div{display:flex;flex-direction:column}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.row3{grid-template-columns:1fr 1fr}}
+.switch{display:flex;align-items:center;gap:10px;margin:8px 0}
+.switch input{accent-color:var(--brand);width:20px;height:20px}
+
+/* 버튼 공통 */
+.btn{display:inline-flex;gap:6px;align-items:center;padding:14px 20px;background:#2c58ff;border:1px solid #2c58ff;color:#fff;border-radius:12px;cursor:pointer;font-weight:700;font-size:19px;text-decoration:none}
+.btn:hover{filter:brightness(1.05)}
+.btn .ico{font-size:18px}
+.btn-secondary{background:#fff;color:#2c58ff}
+
+/* ▼ 주택공시가격 버튼 전용(2단계 축소) */
+.btn-lookup{font-size:15px;padding:10px 12px;border-radius:10px}
+.btn-lookup .ico{font-size:14px}
+
+/* 아이콘형 버튼 */
+.btn-law-pill{display:inline-flex;align-items:center;gap:6px;justify-content:center;padding:8px 12px;background:#ffdede;border:1px solid #f1a9a9;color:#9a1e1e;border-radius:9999px;cursor:pointer;font-size:14px;font-weight:normal;text-align:center;white-space:nowrap;line-height:1;text-decoration:none}
+.btn-law-pill:hover{filter:brightness(1.05)}
+.btn-law-pill .ico{font-size:13px}
+.btn-print-pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background:#e8f7e9;border:1px solid #bde5c2;color:#1f7a33;border-radius:9999px;cursor:pointer;font-size:14px;white-space:nowrap;line-height:1;font-weight:bold;text-decoration:none}
+.btn-print-pill:hover{filter:brightness(1.05)}
+.btn-print-pill .ico{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-radius:2px;position:relative}
+.btn-print-pill .ico:before{content:"";position:absolute;left:2px;right:2px;bottom:-2px;height:6px;border-top:2px solid currentColor}
+
+/* 액션 행 */
+.actions{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.actions .left{display:flex;gap:10px}
+.actions .right{display:flex;gap:10px}
+
+/* 표 */
+.table{width:100%;border-collapse:collapse;margin-top:8px;font-size:16px;table-layout:fixed}
+.table colgroup col.c1{width:29%}.table colgroup col.c2{width:34%}.table colgroup col.c3{width:37%}
+.table th,.table td{padding:12px;border-bottom:1px solid #ddd;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table thead th:first-child{text-align:center}
+.table th:first-child,.table td:first-child{text-align:left}
+.table td.mono{font-weight:800;font-size:17px}
+.th-center{text-align:center !important}
+tfoot tr{background:var(--sum-bg);font-weight:900}
+tfoot th.big{font-size:19px}
+.sum-amount{font-size:18px !important;font-weight:900 !important;line-height:1.2}
+.subnote{font-size:60%;font-weight:600;color:#2c58ff;display:block;margin-top:1px}
+.warn{color:var(--warn);font-size:13px;margin-top:10px;line-height:1.4}
+.warn b{font-weight:700}
+.micro{font-size:55%}
+.info-table td:first-child,.info-table th:first-child{text-align:center !important}
+#공정율{text-align:right !important}
+
+/* 안내 섹션 */
+.tips details{margin-top:12px}
+.tips summary{cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:normal}
+.tips .ico-info{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:#eef3ff;border:1px solid #cdd9ff;color:#2c58ff;font-size:16px;font-weight:800;line-height:1}
+.tips .small-2{font-size:90%;font-weight:normal}
+.tips .tipbox{padding:10px 12px;background:#fff;border:1px solid #ddd;border-radius:10px;margin-top:8px}
+.tips ol{margin:0;padding-left:18px}
+.tips li{margin:6px 0}
+.tips a{color:#2c58ff;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">2025년 재산세 공동주택 세액계산</div>
+  <div class="subtitle">
+    ※ 공동주택(아파트, 연립, 빌라, 다세대)전용 세액계산입니다.
+    <span class="danger">단독주택 및 다가구 주택은 세액계산 불가</span>
+  </div>
+
+  <div class="grid">
+    <!-- 입력 -->
+    <div class="card">
+      <div class="header-row">
+        <h2>1. 정보입력<span class="unit">(단위: 원)</span></h2>
+        <!-- ▼ 주택공시가격 버튼 축소 버전 -->
+        <button class="btn btn-secondary btn-lookup" type="button" onclick="openLookupNew()">
+          <span class="ico">🔍</span> 주택공시가격
+        </button>
+      </div>
+
+      <div class="row3 align-end" style="margin-top:10px">
+        <div><label>2025년 주택공시가격</label><input id="공시_현" class="num" type="text" placeholder="숫자만 입력"></div>
+        <div><label>2024년 주택공시가격</label><input id="공시_전" class="num" type="text" placeholder="숫자만 입력"></div>
+        <div><label class="label-center">보유 주택수</label><input id="주택수" class="num center-input block-center w-105" type="text" value="" placeholder="숫자만 입력"></div>
+      </div>
+
+      <div class="row2" style="margin-top:4px">
+        <div>
+          <div class="switch">
+            <input id="도시과세" type="checkbox" checked>
+            <label for="도시과세">도시지역분 과세</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="left"><button class="btn" onclick="calc()">계산하기</button></div>
+        <div class="right">
+          <a class="btn-print-pill" href="javascript:window.print()"><span class="ico"></span> 인쇄/저장</a>
+          <a class="btn-law-pill" target="_blank" href="https://www.law.go.kr/LSW/lsSc.do?query=%EC%A7%80%EB%B0%A9%EC%84%B8%EB%B2%95"><span class="ico">🔍</span> 지방세법</a>
+        </div>
+      </div>
+
+      <!-- 안내 -->
+      <div class="tips">
+        <details>
+          <summary><span class="ico-info">i</span> <span class="small-2">(더보기)</span></summary>
+          <div class="tipbox">
+            <ol>
+              <li>재산세는 매년 6월 1일 현재 재산의 소유자에게 부과</li>
+              <li>
+                과세대상:<br>
+                7월: 주택 1기분, 주택이 아닌 건축물·선박·항공기<br>
+                9월: 주택 2기분, 토지
+              </li>
+              <li>납부방법: 은행방문, <a href="https://www.wetax.go.kr" target="_blank">위텍스</a>, 신용카드· 가상계좌 이체 등</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div class="card">
+      <h2>2. 계산 결과</h2>
+      <table class="table"><colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+        <thead>
+          <tr><th class="th-center">세  목</th><th class="mono th-center">총세액</th><th class="mono">분기별(7·9월)세액</th></tr>
+        </thead>
+        <tbody id="tb">
+          <tr><td colspan="3" style="text-align:center;color:#555">입력 후 ‘계산하기’를 눌러주세요.</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th class="big">합계 세액 <span class="subnote">(지역자원시설세 제외)</span></th>
+            <th class="mono sum-amount" id="sumY">-</th>
+            <th class="mono sum-amount" id="sumQ">-</th>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!-- 경고 문구 -->
+      <div class="warn" style="margin-top:8px;">
+        <b>지역자원시설세와 세부담상한, 감면 부분은 미반영</b>한 세액계산입니다.<br>
+        궁금하신 점은 부동산 소재지 관할구청 세무과로 문의하시기 바랍니다.
+      </div>
+
+      <div style="margin-top:10px">
+        <details open><summary>세액산출 정보</summary>
+          <table class="table info-table">
+            <tbody>
+              <tr><td>과표상한율 적용 공시가격</td><td class="mono" id="적용공시">-</td></tr>
+              <tr><td>재산세 과세표준</td><td class="mono" id="과표">-</td></tr>
+              <tr><td>적용 세율</td><td class="mono" id="세율구간">-</td></tr>
+              <tr><td>공정시장가액비율</td><td class="mono" id="공정율">-</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openLookupNew(){window.open('https://www.realtyprice.kr/notice/town/nfSiteLink.htm','_blank');}
+document.addEventListener('input', e=>{
+  if(e.target.classList.contains('num')){
+    let v=e.target.value.replace(/,/g,'').replace(/[^\d.]/g,'');
+    if(v===''){e.target.value='';return;}
+    e.target.value=v.replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  }
+});
+function getNum(id){return Number((document.getElementById(id).value||'0').replace(/,/g,''));}
+const fmt=n=>isFinite(n)?Math.round(n).toLocaleString('ko-KR')+'원':'-';
+const floor10=n=>Math.floor(n/10)*10;
+const fmtPct=p=>{const v=Math.round(p*10000)/100;return(Math.abs(v-Math.round(v))<1e-9)?(Math.round(v)+'%'):(v+'%');};
+
+const TBL_GENERAL=[
+  {base:0,rate:0.0010,minus:0},
+  {base:6000000,rate:0.0015,minus:30000},
+  {base:150000000,rate:0.0025,minus:180000},
+  {base:300000000,rate:0.0040,minus:630000}
+];
+const TBL_SPECIAL=[
+  {base:0,rate:0.0005,minus:0},
+  {base:6000000,rate:0.0010,minus:30000},
+  {base:150000000,rate:0.0020,minus:180000},
+  {base:300000000,rate:0.0035,minus:630000}
+];
+function pickBracket(base,table){let cur=table[0];for(const b of table){if(base>=b.base)cur=b;else break;}return cur;}
+
+function calc(){
+  const curP=getNum('공시_현'), prevP=getNum('공시_전'),
+        homes=Number((document.getElementById('주택수').value||'1').replace(/,/g,''))||1,
+        urban=document.getElementById('도시과세')?.checked ?? true;
+
+  // 과표상한율 적용 공시가격: min(전년+현년*5%, 현년)
+  const capPublic=prevP+curP*0.05;
+  const appliedPublic=Math.min(capPublic,curP);
+
+  // 공정시장가액비율
+  let csmar=(homes===1)
+    ? (appliedPublic<=300000000?0.43:(appliedPublic<=600000000?0.44:0.45))
+    : 0.60;
+
+  // 과세표준
+  const base=Math.floor(appliedPublic*csmar);
+
+  // 9억원 초과면 일반세율, 그 외 1주택이면 특례세율, 다주택이면 일반세율
+  let rule,using;
+  if(curP>900000000){rule=pickBracket(base,TBL_GENERAL);using='일반세율';}
+  else{if(homes===1){rule=pickBracket(base,TBL_SPECIAL);using='1주택 특례세율';} else {rule=pickBracket(base,TBL_GENERAL);using='일반세율';}}
+
+  // 본세/도시지역분/지방교육세
+  let y_bon=Math.round(base*rule.rate-rule.minus),
+      y_city=Math.round((urban? base*0.0014:0)),
+      y_edu=Math.round(y_bon*0.20);
+
+  // 분기 반액 (교육세는 10원 미만 절사)
+  let q_bon=y_bon/2, q_city=y_city/2, q_edu=floor10(y_edu/2);
+
+  const y_sum=y_bon+y_city+y_edu,
+        q_sum=floor10(q_bon+q_city+q_edu);
+
+  document.getElementById('tb').innerHTML=
+    '<tr><td class="th-center">재산세(본세)</td><td class="mono">'+fmt(y_bon)+'</td><td class="mono">'+fmt(q_bon)+'</td></tr>'+
+    '<tr><td class="th-center">도시지역분</td><td class="mono">'+fmt(y_city)+'</td><td class="mono">'+fmt(q_city)+'</td></tr>'+
+    '<tr><td class="th-center">지방교육세</td><td class="mono">'+fmt(y_edu)+'</td><td class="mono">'+fmt(q_edu)+'</td></tr>'+
+    '<tr><td class="th-center tight-sm">지역자원시설세</td><td class="mono micro">별도계산 필요</td><td class="mono micro">별도계산 필요</td></tr>';
+
+  document.getElementById('sumY').textContent=fmt(y_sum);
+  document.getElementById('sumQ').textContent=fmt(q_sum);
+
+  document.getElementById('적용공시').textContent=appliedPublic.toLocaleString('ko-KR')+'원';
+  document.getElementById('과표').textContent=base.toLocaleString('ko-KR')+'원';
+  document.getElementById('세율구간').textContent=using;
+  document.getElementById('공정율').textContent=fmtPct(csmar);
+}
+</script>
+
+<!-- PWA: service worker registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker registered'))
+      .catch(err => console.error('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
